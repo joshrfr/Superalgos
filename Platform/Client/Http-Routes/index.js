@@ -49,6 +49,7 @@ exports.newHttpRoutes = function newHttpRoutes() {
             require('./schema').newSchemaRoute(),
             require('./secrets').newSecretsRoute(),
             require('./social-bots').newSocialBotsRoute(),
+            require('./stock-forex').newStockForexRoute(),
             require('./storage').newStorageRoute(),
             require('./web-server').newWebServerRoute(),
             require('./web3').newWEB3Route(),

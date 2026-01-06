@@ -1,0 +1,41 @@
+{
+    "type": "Forex Exchanges",
+    "definition": "Container for all forex brokers and exchanges.",
+    "menuItems": [
+        {
+            "action": "Add UI Object",
+            "label": "Add Forex Exchange",
+            "translationKey": "add.forex.exchange",
+            "relatedUiObject": "Forex Exchange",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 1,
+    "attachingRules": {
+        "compatibleTypes": "->Stock Forex Ecosystem->"
+    },
+    "propertyNameAtParent": "forexExchanges",
+    "childrenNodesProperties": [
+        {
+            "name": "exchanges",
+            "type": "array",
+            "childType": "Forex Exchange"
+        }
+    ]
+}

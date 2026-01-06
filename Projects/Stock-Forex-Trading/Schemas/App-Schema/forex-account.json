@@ -1,0 +1,58 @@
+{
+    "type": "Forex Account",
+    "definition": "A forex broker account with API credentials for trading.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "accountKeys",
+            "label": "Add Account Keys",
+            "translationKey": "add.account.keys",
+            "relatedUiObject": "Forex Account Keys",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 4,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"codeName\": \"My-Forex-Account\",\n\"accountId\": \"\",\n\"practice\": true,\n\"leverage\": 100\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Forex Accounts->"
+    },
+    "propertyNameAtParent": "accounts",
+    "childrenNodesProperties": [
+        {
+            "name": "accountKeys",
+            "type": "node",
+            "childType": "Forex Account Keys",
+            "autoAdd": true
+        }
+    ]
+}

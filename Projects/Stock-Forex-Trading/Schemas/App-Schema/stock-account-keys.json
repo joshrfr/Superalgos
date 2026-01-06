@@ -1,0 +1,39 @@
+{
+    "type": "Stock Account Keys",
+    "definition": "API keys and credentials for the stock brokerage account.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 5,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"apiKey\": \"\",\n\"apiSecret\": \"\"\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Stock Account->"
+    },
+    "propertyNameAtParent": "accountKeys"
+}

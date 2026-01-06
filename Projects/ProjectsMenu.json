@@ -81,6 +81,11 @@
         "systemMenu": []
     },
     {
+        "name": "Stock-Forex-Trading",
+        "propertyName": "stockForexTrading",
+        "systemMenu": []
+    },
+    {
         "name": "Workspaces",
         "translationKey": "nav.workspaces.title",
         "propertyName": "workspaces",

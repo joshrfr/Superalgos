@@ -1,0 +1,58 @@
+{
+    "type": "Stock Forex Ecosystem",
+    "definition": "The Stock Forex Ecosystem is the root node that organizes all stock exchanges, forex brokers, and related trading infrastructure.",
+    "isHierarchyHead": true,
+    "menuItems": [
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "stockExchanges",
+            "label": "Add Stock Exchanges",
+            "translationKey": "add.stock.exchanges",
+            "relatedUiObject": "Stock Exchanges",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "forexExchanges",
+            "label": "Add Forex Exchanges",
+            "translationKey": "add.forex.exchanges",
+            "relatedUiObject": "Forex Exchanges",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 0,
+    "childrenNodesProperties": [
+        {
+            "name": "stockExchanges",
+            "type": "node",
+            "childType": "Stock Exchanges",
+            "autoAdd": true
+        },
+        {
+            "name": "forexExchanges",
+            "type": "node",
+            "childType": "Forex Exchanges",
+            "autoAdd": true
+        }
+    ]
+}
