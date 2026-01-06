@@ -111,12 +111,20 @@
             "iconName": "interactive-brokers"
         },
         {
+            "codeName": "ibkr",
+            "iconName": "interactive-brokers"
+        },
+        {
             "codeName": "td-ameritrade",
             "iconName": "td-ameritrade"
         },
         {
             "codeName": "tradier",
             "iconName": "tradier"
+        },
+        {
+            "codeName": "tradestation",
+            "iconName": "tradestation"
         },
         {
             "codeName": "yahoo",

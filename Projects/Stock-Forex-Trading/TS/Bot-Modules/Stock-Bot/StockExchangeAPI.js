@@ -22,8 +22,10 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
     const STOCK_BROKERS = {
         ALPACA: 'alpaca',
         INTERACTIVE_BROKERS: 'interactive-brokers',
+        IBKR: 'ibkr',
         TD_AMERITRADE: 'td-ameritrade',
-        TRADIER: 'tradier'
+        TRADIER: 'tradier',
+        TRADESTATION: 'tradestation'
     };
 
     return thisObject;
@@ -71,6 +73,11 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                     return await createAlpacaOrder(symbol, type, side, amount, price, params);
                 case STOCK_BROKERS.TRADIER:
                     return await createTradierOrder(symbol, type, side, amount, price, params);
+                case STOCK_BROKERS.INTERACTIVE_BROKERS:
+                case STOCK_BROKERS.IBKR:
+                    return await createIBKROrder(symbol, type, side, amount, price, params);
+                case STOCK_BROKERS.TRADESTATION:
+                    return await createTradeStationOrder(symbol, type, side, amount, price, params);
                 default:
                     throw new Error('Unsupported broker: ' + broker);
             }
@@ -90,6 +97,11 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                     return await getAlpacaOrder(orderId);
                 case STOCK_BROKERS.TRADIER:
                     return await getTradierOrder(orderId);
+                case STOCK_BROKERS.INTERACTIVE_BROKERS:
+                case STOCK_BROKERS.IBKR:
+                    return await getIBKROrder(orderId);
+                case STOCK_BROKERS.TRADESTATION:
+                    return await getTradeStationOrder(orderId);
                 default:
                     throw new Error('Unsupported broker: ' + broker);
             }
@@ -109,6 +121,11 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                     return await cancelAlpacaOrder(orderId);
                 case STOCK_BROKERS.TRADIER:
                     return await cancelTradierOrder(orderId);
+                case STOCK_BROKERS.INTERACTIVE_BROKERS:
+                case STOCK_BROKERS.IBKR:
+                    return await cancelIBKROrder(orderId);
+                case STOCK_BROKERS.TRADESTATION:
+                    return await cancelTradeStationOrder(orderId);
                 default:
                     throw new Error('Unsupported broker: ' + broker);
             }
@@ -128,6 +145,11 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                     return await getAlpacaPositions();
                 case STOCK_BROKERS.TRADIER:
                     return await getTradierPositions();
+                case STOCK_BROKERS.INTERACTIVE_BROKERS:
+                case STOCK_BROKERS.IBKR:
+                    return await getIBKRPositions();
+                case STOCK_BROKERS.TRADESTATION:
+                    return await getTradeStationPositions();
                 default:
                     throw new Error('Unsupported broker: ' + broker);
             }
@@ -147,6 +169,11 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                     return await getAlpacaAccount();
                 case STOCK_BROKERS.TRADIER:
                     return await getTradierAccount();
+                case STOCK_BROKERS.INTERACTIVE_BROKERS:
+                case STOCK_BROKERS.IBKR:
+                    return await getIBKRAccount();
+                case STOCK_BROKERS.TRADESTATION:
+                    return await getTradeStationAccount();
                 default:
                     throw new Error('Unsupported broker: ' + broker);
             }
@@ -601,6 +628,570 @@ exports.newStockForexTradingBotModulesStockExchangeAPI = function (processIndex)
                             cash: parseFloat(balances.cash.cash_available || balances.total_cash),
                             portfolioValue: parseFloat(balances.total_equity),
                             buyingPower: parseFloat(balances.margin ? balances.margin.stock_buying_power : balances.total_cash)
+                        });
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    // ==================== INTERACTIVE BROKERS (IBKR) API Implementation ====================
+    /*
+    Interactive Brokers Client Portal API - Best for HFT
+    Requires TWS or IB Gateway running locally with API enabled.
+
+    Setup:
+    1. Download and install TWS or IB Gateway from IBKR
+    2. Enable API access in TWS settings (Edit > Global Configuration > API > Settings)
+    3. Set the gateway URL in config (default: https://localhost:5000)
+
+    Config example:
+    {
+        "codeName": "interactive-brokers",
+        "gatewayUrl": "https://localhost:5000",
+        "accountId": "YOUR_ACCOUNT_ID",
+        "paperTrading": true
+    }
+    */
+
+    function getIBKRBaseUrl() {
+        return exchangeConfig.gatewayUrl || 'https://localhost:5000';
+    }
+
+    async function createIBKROrder(symbol, type, side, amount, price, params) {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+        let ticker = symbol.split('/')[0];
+
+        // First, get the contract ID (conid) for the symbol
+        let conid = await getIBKRContractId(ticker);
+
+        let orderData = {
+            orders: [{
+                conid: conid,
+                orderType: type.toUpperCase() === 'MARKET' ? 'MKT' : 'LMT',
+                side: side.toUpperCase(),
+                quantity: amount,
+                tif: params.timeInForce || 'DAY'
+            }]
+        };
+
+        if (type.toUpperCase() === 'LIMIT' || type.toUpperCase() === 'LMT') {
+            orderData.orders[0].price = price;
+        }
+
+        return new Promise((resolve, reject) => {
+            let postData = JSON.stringify(orderData);
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/iserver/account/${accountId}/orders`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                },
+                rejectUnauthorized: false // IBKR uses self-signed certs locally
+            };
+
+            let req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        if (json[0] && json[0].order_id) {
+                            resolve({
+                                id: json[0].order_id,
+                                symbol: ticker,
+                                side: side,
+                                type: type,
+                                qty: amount,
+                                price: price,
+                                status: json[0].order_status || 'Submitted'
+                            });
+                        } else if (json.error) {
+                            reject(new Error(json.error));
+                        } else {
+                            // IBKR may require order confirmation
+                            resolve({
+                                id: 'pending_confirmation',
+                                message: json.message || 'Order requires confirmation',
+                                replyId: json.id
+                            });
+                        }
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            });
+
+            req.on('error', (err) => reject(err));
+            req.write(postData);
+            req.end();
+        });
+    }
+
+    async function getIBKRContractId(symbol) {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+
+        return new Promise((resolve, reject) => {
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/iserver/secdef/search?symbol=${symbol}`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname + parsedUrl.search,
+                method: 'GET',
+                rejectUnauthorized: false
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        if (json[0] && json[0].conid) {
+                            resolve(json[0].conid);
+                        } else {
+                            reject(new Error('Contract not found for symbol: ' + symbol));
+                        }
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    async function getIBKROrder(orderId) {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+
+        return new Promise((resolve, reject) => {
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/iserver/account/${accountId}/order/${orderId}`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname,
+                method: 'GET',
+                rejectUnauthorized: false
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        resolve({
+                            id: json.orderId || orderId,
+                            symbol: json.ticker,
+                            side: json.side,
+                            type: json.orderType,
+                            qty: parseFloat(json.totalSize || json.remainingQuantity),
+                            filledQty: parseFloat(json.filledQuantity || 0),
+                            price: json.price ? parseFloat(json.price) : null,
+                            filledPrice: json.avgPrice ? parseFloat(json.avgPrice) : null,
+                            status: json.status
+                        });
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    async function cancelIBKROrder(orderId) {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+
+        return new Promise((resolve, reject) => {
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/iserver/account/${accountId}/order/${orderId}`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname,
+                method: 'DELETE',
+                rejectUnauthorized: false
+            };
+
+            let req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    if (res.statusCode >= 200 && res.statusCode < 300) {
+                        resolve({ success: true, orderId: orderId });
+                    } else {
+                        try {
+                            let json = JSON.parse(data);
+                            reject(new Error(json.error || 'Cancel failed'));
+                        } catch (e) {
+                            reject(new Error('Cancel failed with status ' + res.statusCode));
+                        }
+                    }
+                });
+            });
+
+            req.on('error', reject);
+            req.end();
+        });
+    }
+
+    async function getIBKRPositions() {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+
+        return new Promise((resolve, reject) => {
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/portfolio/${accountId}/positions/0`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname,
+                method: 'GET',
+                rejectUnauthorized: false
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        let positions = json.map(p => ({
+                            symbol: p.contractDesc || p.ticker,
+                            qty: parseFloat(p.position),
+                            side: parseFloat(p.position) > 0 ? 'long' : 'short',
+                            avgPrice: parseFloat(p.avgCost),
+                            marketValue: parseFloat(p.mktValue),
+                            unrealizedPL: parseFloat(p.unrealizedPnl),
+                            unrealizedPLPercent: parseFloat(p.unrealizedPnl) / parseFloat(p.avgCost) * 100
+                        }));
+                        resolve(positions);
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    async function getIBKRAccount() {
+        const https = SA.nodeModules.https;
+        const url = require('url');
+
+        let baseUrl = getIBKRBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+
+        return new Promise((resolve, reject) => {
+            let parsedUrl = new url.URL(`${baseUrl}/v1/api/portfolio/${accountId}/summary`);
+
+            let options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port,
+                path: parsedUrl.pathname,
+                method: 'GET',
+                rejectUnauthorized: false
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        resolve({
+                            id: accountId,
+                            status: 'active',
+                            currency: json.baseCurrency || 'USD',
+                            cash: parseFloat(json.availablefunds?.amount || json.totalcashvalue?.amount || 0),
+                            portfolioValue: parseFloat(json.netliquidation?.amount || 0),
+                            buyingPower: parseFloat(json.buyingpower?.amount || 0),
+                            marginUsed: parseFloat(json.maintmarginreq?.amount || 0),
+                            dayTradesRemaining: json.daytradesremaining?.amount
+                        });
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    // ==================== TRADESTATION API Implementation ====================
+    /*
+    TradeStation API - Good for active traders
+    Requires OAuth2 authentication.
+
+    Setup:
+    1. Create an app at https://developer.tradestation.com/
+    2. Get your API Key and Secret
+    3. Complete OAuth flow to get access token
+
+    Config example:
+    {
+        "codeName": "tradestation",
+        "apiKey": "YOUR_API_KEY",
+        "apiSecret": "YOUR_API_SECRET",
+        "accessToken": "YOUR_ACCESS_TOKEN",
+        "accountId": "YOUR_ACCOUNT_ID",
+        "paperTrading": true
+    }
+    */
+
+    function getTradeStationBaseUrl() {
+        return paperTrading ? 'sim-api.tradestation.com' : 'api.tradestation.com';
+    }
+
+    async function createTradeStationOrder(symbol, type, side, amount, price, params) {
+        const https = SA.nodeModules.https;
+
+        let hostname = getTradeStationBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+        let accessToken = exchangeConfig.accessToken || apiKey;
+        let ticker = symbol.split('/')[0];
+
+        let orderData = {
+            AccountID: accountId,
+            Symbol: ticker,
+            Quantity: amount.toString(),
+            OrderType: type.toUpperCase() === 'MARKET' ? 'Market' : 'Limit',
+            TradeAction: side.toUpperCase() === 'BUY' ? 'BUY' : 'SELL',
+            TimeInForce: { Duration: params.timeInForce || 'DAY' },
+            Route: 'Intelligent'
+        };
+
+        if (type.toUpperCase() === 'LIMIT') {
+            orderData.LimitPrice = price.toString();
+        }
+
+        return new Promise((resolve, reject) => {
+            let postData = JSON.stringify(orderData);
+
+            let options = {
+                hostname: hostname,
+                path: '/v3/orderexecution/orders',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            };
+
+            let req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        if (json.Orders && json.Orders[0]) {
+                            let order = json.Orders[0];
+                            resolve({
+                                id: order.OrderID,
+                                symbol: ticker,
+                                side: side,
+                                type: type,
+                                qty: amount,
+                                price: price,
+                                status: order.Status
+                            });
+                        } else if (json.Errors) {
+                            reject(new Error(json.Errors[0].Message));
+                        } else {
+                            reject(new Error('Order creation failed'));
+                        }
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            });
+
+            req.on('error', (err) => reject(err));
+            req.write(postData);
+            req.end();
+        });
+    }
+
+    async function getTradeStationOrder(orderId) {
+        const https = SA.nodeModules.https;
+
+        let hostname = getTradeStationBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+        let accessToken = exchangeConfig.accessToken || apiKey;
+
+        return new Promise((resolve, reject) => {
+            let options = {
+                hostname: hostname,
+                path: `/v3/brokerage/accounts/${accountId}/orders/${orderId}`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        let order = json.Orders ? json.Orders[0] : json;
+                        resolve({
+                            id: order.OrderID,
+                            symbol: order.Symbol,
+                            side: order.TradeAction,
+                            type: order.OrderType,
+                            qty: parseFloat(order.Quantity),
+                            filledQty: parseFloat(order.FilledQuantity || 0),
+                            price: order.LimitPrice ? parseFloat(order.LimitPrice) : null,
+                            filledPrice: order.FilledPrice ? parseFloat(order.FilledPrice) : null,
+                            status: order.Status
+                        });
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    async function cancelTradeStationOrder(orderId) {
+        const https = SA.nodeModules.https;
+
+        let hostname = getTradeStationBaseUrl();
+        let accessToken = exchangeConfig.accessToken || apiKey;
+
+        return new Promise((resolve, reject) => {
+            let options = {
+                hostname: hostname,
+                path: `/v3/orderexecution/orders/${orderId}`,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            };
+
+            let req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    if (res.statusCode >= 200 && res.statusCode < 300) {
+                        resolve({ success: true, orderId: orderId });
+                    } else {
+                        try {
+                            let json = JSON.parse(data);
+                            reject(new Error(json.Message || 'Cancel failed'));
+                        } catch (e) {
+                            reject(new Error('Cancel failed with status ' + res.statusCode));
+                        }
+                    }
+                });
+            });
+
+            req.on('error', reject);
+            req.end();
+        });
+    }
+
+    async function getTradeStationPositions() {
+        const https = SA.nodeModules.https;
+
+        let hostname = getTradeStationBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+        let accessToken = exchangeConfig.accessToken || apiKey;
+
+        return new Promise((resolve, reject) => {
+            let options = {
+                hostname: hostname,
+                path: `/v3/brokerage/accounts/${accountId}/positions`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        let positions = (json.Positions || []).map(p => ({
+                            symbol: p.Symbol,
+                            qty: parseFloat(p.Quantity),
+                            side: parseFloat(p.Quantity) > 0 ? 'long' : 'short',
+                            avgPrice: parseFloat(p.AveragePrice),
+                            marketValue: parseFloat(p.MarketValue),
+                            unrealizedPL: parseFloat(p.UnrealizedProfitLoss),
+                            unrealizedPLPercent: parseFloat(p.UnrealizedProfitLossPercent)
+                        }));
+                        resolve(positions);
+                    } catch (parseErr) {
+                        reject(parseErr);
+                    }
+                });
+            }).on('error', reject);
+        });
+    }
+
+    async function getTradeStationAccount() {
+        const https = SA.nodeModules.https;
+
+        let hostname = getTradeStationBaseUrl();
+        let accountId = exchangeConfig.accountId || '';
+        let accessToken = exchangeConfig.accessToken || apiKey;
+
+        return new Promise((resolve, reject) => {
+            let options = {
+                hostname: hostname,
+                path: `/v3/brokerage/accounts/${accountId}/balances`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            };
+
+            https.get(options, (res) => {
+                let data = '';
+                res.on('data', (chunk) => { data += chunk; });
+                res.on('end', () => {
+                    try {
+                        let json = JSON.parse(data);
+                        let balances = json.Balances ? json.Balances[0] : json;
+                        resolve({
+                            id: accountId,
+                            status: 'active',
+                            currency: 'USD',
+                            cash: parseFloat(balances.CashBalance || 0),
+                            portfolioValue: parseFloat(balances.Equity || 0),
+                            buyingPower: parseFloat(balances.BuyingPower || 0),
+                            dayTradingBuyingPower: parseFloat(balances.DayTradingBuyingPower || 0),
+                            marginBalance: parseFloat(balances.MarginBalance || 0)
                         });
                     } catch (parseErr) {
                         reject(parseErr);

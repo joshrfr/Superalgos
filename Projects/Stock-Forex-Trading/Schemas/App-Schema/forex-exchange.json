@@ -107,6 +107,18 @@
             "iconName": "oanda"
         },
         {
+            "codeName": "metatrader",
+            "iconName": "metatrader"
+        },
+        {
+            "codeName": "mt4",
+            "iconName": "metatrader"
+        },
+        {
+            "codeName": "mt5",
+            "iconName": "metatrader"
+        },
+        {
             "codeName": "forex-com",
             "iconName": "forex-com"
         },
