@@ -1,0 +1,41 @@
+{
+    "type": "Forex Assets",
+    "definition": "Container for forex currency and precious metal assets.",
+    "menuItems": [
+        {
+            "action": "Add UI Object",
+            "label": "Add Forex Asset",
+            "translationKey": "add.forex.asset",
+            "relatedUiObject": "Forex Asset",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 3,
+    "attachingRules": {
+        "compatibleTypes": "->Forex Exchange->"
+    },
+    "propertyNameAtParent": "forexAssets",
+    "childrenNodesProperties": [
+        {
+            "name": "assets",
+            "type": "array",
+            "childType": "Forex Asset"
+        }
+    ]
+}

@@ -2686,5 +2686,62 @@
                 }
             ]
         }
+    },
+    {
+        "name": "Stock-Forex-Trading",
+        "propertyName": "stockForexTrading",
+        "UI": {
+            "nodeActionFunctions": [
+                {
+                    "name": "Stock Forex Functions",
+                    "propertyName": "stockForexFunctions",
+                    "functionName": "newStockForexTradingFunctionLibraryStockForexFunctions"
+                }
+            ],
+            "systemActionFunctions": [],
+            "functionLibraries": []
+        },
+        "TS": {
+            "botModules": [
+                {
+                    "name": "Stock Data Fetcher",
+                    "propertyName": "stockDataFetcher",
+                    "functionName": "newStockForexTradingBotModulesStockDataFetcher",
+                    "fileName": "StockDataFetcher.js",
+                    "folderName": "Stock-Bot",
+                    "botType": "Sensor Bot"
+                },
+                {
+                    "name": "Stock Exchange API",
+                    "propertyName": "stockExchangeAPI",
+                    "functionName": "newStockForexTradingBotModulesStockExchangeAPI",
+                    "fileName": "StockExchangeAPI.js",
+                    "folderName": "Stock-Bot"
+                },
+                {
+                    "name": "Forex Data Fetcher",
+                    "propertyName": "forexDataFetcher",
+                    "functionName": "newStockForexTradingBotModulesForexDataFetcher",
+                    "fileName": "ForexDataFetcher.js",
+                    "folderName": "Forex-Bot",
+                    "botType": "Sensor Bot"
+                },
+                {
+                    "name": "Forex Exchange API",
+                    "propertyName": "forexExchangeAPI",
+                    "functionName": "newStockForexTradingBotModulesForexExchangeAPI",
+                    "fileName": "ForexExchangeAPI.js",
+                    "folderName": "Forex-Bot"
+                }
+            ]
+        },
+        "plugins": [
+            "Stock Trading Systems",
+            "Forex Trading Systems"
+        ],
+        "tasks": [
+            "Stock Trading Tasks",
+            "Forex Trading Tasks"
+        ]
     }
 ]

@@ -1,0 +1,58 @@
+{
+    "type": "Stock Account",
+    "definition": "A brokerage account with API credentials for stock trading.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "accountKeys",
+            "label": "Add Account Keys",
+            "translationKey": "add.account.keys",
+            "relatedUiObject": "Stock Account Keys",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 4,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"codeName\": \"My-Stock-Account\",\n\"paperTrading\": true\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Stock Accounts->"
+    },
+    "propertyNameAtParent": "accounts",
+    "childrenNodesProperties": [
+        {
+            "name": "accountKeys",
+            "type": "node",
+            "childType": "Stock Account Keys",
+            "autoAdd": true
+        }
+    ]
+}

@@ -1,0 +1,142 @@
+{
+    "type": "Stock Exchange",
+    "definition": "A stock exchange or brokerage that provides access to stock and options markets.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "stockAssets",
+            "label": "Add Stock Assets",
+            "translationKey": "add.stock.assets",
+            "relatedUiObject": "Stock Assets",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "stockMarkets",
+            "label": "Add Stock Markets",
+            "translationKey": "add.stock.markets",
+            "relatedUiObject": "Stock Markets",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "stockAccounts",
+            "label": "Add Stock Accounts",
+            "translationKey": "add.stock.accounts",
+            "relatedUiObject": "Stock Accounts",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add Missing Stock Markets",
+            "label": "Add Missing Markets",
+            "translationKey": "add.missing.stock.markets",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Proceed",
+            "confirmationLabelTranslationKey": "general.confirm.proceed",
+            "workDoneLabel": "Done",
+            "workDoneLabelTranslationKey": "general.done",
+            "actionFunction": "payload.executeAction",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 2,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"codeName\": \"alpaca\",\n\"apiKey\": \"\",\n\"apiSecret\": \"\",\n\"paperTrading\": true,\n\"dataProvider\": \"yahoo\"\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Stock Exchanges->"
+    },
+    "propertyNameAtParent": "exchanges",
+    "childrenNodesProperties": [
+        {
+            "name": "stockAssets",
+            "type": "node",
+            "childType": "Stock Assets",
+            "autoAdd": true
+        },
+        {
+            "name": "stockMarkets",
+            "type": "node",
+            "childType": "Stock Markets",
+            "autoAdd": true
+        },
+        {
+            "name": "stockAccounts",
+            "type": "node",
+            "childType": "Stock Accounts",
+            "autoAdd": true
+        }
+    ],
+    "alternativeIcons": [
+        {
+            "codeName": "alpaca",
+            "iconName": "alpaca"
+        },
+        {
+            "codeName": "interactive-brokers",
+            "iconName": "interactive-brokers"
+        },
+        {
+            "codeName": "ibkr",
+            "iconName": "interactive-brokers"
+        },
+        {
+            "codeName": "td-ameritrade",
+            "iconName": "td-ameritrade"
+        },
+        {
+            "codeName": "tradier",
+            "iconName": "tradier"
+        },
+        {
+            "codeName": "tradestation",
+            "iconName": "tradestation"
+        },
+        {
+            "codeName": "yahoo",
+            "iconName": "yahoo"
+        },
+        {
+            "codeName": "polygon",
+            "iconName": "polygon"
+        },
+        {
+            "codeName": "alpha-vantage",
+            "iconName": "alpha-vantage"
+        }
+    ]
+}

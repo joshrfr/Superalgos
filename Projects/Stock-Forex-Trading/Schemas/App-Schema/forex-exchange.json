@@ -1,0 +1,146 @@
+{
+    "type": "Forex Exchange",
+    "definition": "A forex broker or exchange that provides access to currency and precious metals markets.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "forexAssets",
+            "label": "Add Forex Assets",
+            "translationKey": "add.forex.assets",
+            "relatedUiObject": "Forex Assets",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "forexMarkets",
+            "label": "Add Forex Markets",
+            "translationKey": "add.forex.markets",
+            "relatedUiObject": "Forex Markets",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "forexAccounts",
+            "label": "Add Forex Accounts",
+            "translationKey": "add.forex.accounts",
+            "relatedUiObject": "Forex Accounts",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add Missing Forex Markets",
+            "label": "Add Missing Markets",
+            "translationKey": "add.missing.forex.markets",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Proceed",
+            "confirmationLabelTranslationKey": "general.confirm.proceed",
+            "workDoneLabel": "Done",
+            "workDoneLabelTranslationKey": "general.done",
+            "actionFunction": "payload.executeAction",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "isTitleAllwaysVisible": true,
+    "addLeftIcons": true,
+    "level": 2,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"codeName\": \"oanda\",\n\"apiKey\": \"\",\n\"accountId\": \"\",\n\"practice\": true\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Forex Exchanges->"
+    },
+    "propertyNameAtParent": "exchanges",
+    "childrenNodesProperties": [
+        {
+            "name": "forexAssets",
+            "type": "node",
+            "childType": "Forex Assets",
+            "autoAdd": true
+        },
+        {
+            "name": "forexMarkets",
+            "type": "node",
+            "childType": "Forex Markets",
+            "autoAdd": true
+        },
+        {
+            "name": "forexAccounts",
+            "type": "node",
+            "childType": "Forex Accounts",
+            "autoAdd": true
+        }
+    ],
+    "alternativeIcons": [
+        {
+            "codeName": "oanda",
+            "iconName": "oanda"
+        },
+        {
+            "codeName": "metatrader",
+            "iconName": "metatrader"
+        },
+        {
+            "codeName": "mt4",
+            "iconName": "metatrader"
+        },
+        {
+            "codeName": "mt5",
+            "iconName": "metatrader"
+        },
+        {
+            "codeName": "forex-com",
+            "iconName": "forex-com"
+        },
+        {
+            "codeName": "ig",
+            "iconName": "ig"
+        },
+        {
+            "codeName": "fxcm",
+            "iconName": "fxcm"
+        },
+        {
+            "codeName": "interactive-brokers",
+            "iconName": "interactive-brokers"
+        },
+        {
+            "codeName": "saxo",
+            "iconName": "saxo"
+        },
+        {
+            "codeName": "tradingview",
+            "iconName": "tradingview"
+        }
+    ]
+}

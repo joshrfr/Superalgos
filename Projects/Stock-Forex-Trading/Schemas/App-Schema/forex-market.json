@@ -1,0 +1,88 @@
+{
+    "type": "Forex Market",
+    "definition": "A forex trading pair such as XAU/USD (Gold/USD), EUR/USD, or GBP/JPY.",
+    "menuItems": [
+        {
+            "action": "Configure",
+            "actionFunction": "uiObject.configEditor.activate",
+            "label": "Configure",
+            "translationKey": "general.configure",
+            "iconPathOn": "configuration",
+            "iconPathOff": "configuration"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "baseAsset",
+            "label": "Add Base Asset",
+            "translationKey": "add.baseAsset",
+            "relatedUiObject": "Forex Market Base Asset",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Add UI Object",
+            "disableIfPropertyIsDefined": true,
+            "propertyToCheckFor": "quotedAsset",
+            "label": "Add Quoted Asset",
+            "translationKey": "add.quotedAsset",
+            "relatedUiObject": "Forex Market Quoted Asset",
+            "actionFunction": "payload.executeAction",
+            "actionProject": "Visual-Scripting",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Install Forex Market",
+            "label": "Install Market",
+            "translationKey": "install.forex.market",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Proceed",
+            "confirmationLabelTranslationKey": "general.confirm.proceed",
+            "workDoneLabel": "Done",
+            "workDoneLabelTranslationKey": "general.done",
+            "relatedUiObject": "Forex Market",
+            "actionFunction": "payload.executeAction",
+            "relatedUiObjectProject": "Stock-Forex-Trading"
+        },
+        {
+            "action": "Delete UI Object",
+            "actionProject": "Visual-Scripting",
+            "askConfirmation": true,
+            "confirmationLabel": "Confirm to Delete",
+            "confirmationLabelTranslationKey": "general.confirm.delete",
+            "label": "Delete",
+            "translationKey": "general.delete",
+            "iconPathOn": "delete-entity",
+            "iconPathOff": "delete-entity",
+            "actionFunction": "payload.executeAction"
+        }
+    ],
+    "childrenNodesProperties": [
+        {
+            "name": "baseAsset",
+            "type": "node",
+            "childType": "Forex Market Base Asset",
+            "autoAdd": true
+        },
+        {
+            "name": "quotedAsset",
+            "type": "node",
+            "childType": "Forex Market Quoted Asset",
+            "autoAdd": true
+        }
+    ],
+    "addLeftIcons": true,
+    "isTitleAllwaysVisible": true,
+    "level": 4,
+    "editors": {
+        "config": true
+    },
+    "initialValues": {
+        "config": "{\n\"codeName\": \"XAU/USD\",\n\"type\": \"precious-metal\",\n\"pipSize\": 0.01,\n\"lotSize\": 100\n}"
+    },
+    "attachingRules": {
+        "compatibleTypes": "->Forex Markets->"
+    },
+    "propertyNameAtParent": "markets"
+}
